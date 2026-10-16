@@ -6,6 +6,57 @@ Aplicación web desarrollada con **PHP y Laravel** que servirá como base del pr
 - **Resultado de aprendizaje:** RA EL02 · NORMA 220501094 — *Elaborar propuesta técnica del software según especificaciones*.
 - **Instructor:** Gustavo Bolaños.
 - **Semana 1:** Instalación del entorno y primer arranque.
+- **Semana 2:** Routing en `web.php` y controladores REST (módulo Aprendices).
+
+---
+
+## Semana 2 — Routing y Controladores REST (módulo Aprendices)
+
+En esta semana se conectó el flujo **Ruta → Controlador → Vista** (patrón MVC) para dejar operativo el módulo `/aprendices`. El guardado es **simulado**; la persistencia real con Eloquent llega en las semanas 3 y 4.
+
+### Rutas — `routes/web.php`
+```php
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AprendizController;
+
+Route::redirect('/', '/aprendices');
+Route::resource('aprendices', AprendizController::class);
+
+// TEMP: Rutas de práctica (comentar antes de producción)
+// Route::get('/ping', fn() => 'pong');
+// Route::get('/hola/{nombre}', fn($nombre) => "Hola, $nombre");
+// Route::get('/suma/{a}/{b}', fn($a,$b) => (int)$a + (int)$b);
+```
+
+### Controlador — `app/Http/Controllers/AprendizController.php`
+Generado con `php artisan make:controller AprendizController --resource`. Implementa `index()`, `create()` y `store()` (validación mínima + redirección con mensaje flash). `show`, `edit`, `update` y `destroy` quedan con `abort(404)` porque no se usan en esta semana.
+
+### Vistas Blade
+- `resources/views/layouts/app.blade.php` — plantilla maestra (menú con `route('aprendices.index')`, `@yield`, mensajes flash).
+- `resources/views/aprendices/index.blade.php` — listado temporal + enlace «+ Nuevo».
+- `resources/views/aprendices/create.blade.php` — formulario POST con `@csrf` (nombre, documento, correo).
+
+### Mapa de rutas
+| Método | URI | Nombre | Acción | Respuesta |
+|---|---|---|---|---|
+| GET,HEAD | `/` | — | RedirectController | 302 → `/aprendices` |
+| GET,HEAD | `/aprendices` | `aprendices.index` | `AprendizController@index` | `view` listado |
+| GET,HEAD | `/aprendices/create` | `aprendices.create` | `AprendizController@create` | `view` formulario |
+| POST | `/aprendices` | `aprendices.store` | `AprendizController@store` | Validación → redirect + flash |
+| GET,HEAD | `/aprendices/{aprendice}` | `aprendices.show` | `AprendizController@show` | `abort(404)` |
+| GET,HEAD | `/aprendices/{aprendice}/edit` | `aprendices.edit` | `AprendizController@edit` | `abort(404)` |
+| PUT,PATCH | `/aprendices/{aprendice}` | `aprendices.update` | `AprendizController@update` | `abort(404)` |
+| DELETE | `/aprendices/{aprendice}` | `aprendices.destroy` | `AprendizController@destroy` | `abort(404)` |
+
+### Cómo verificar
+```bash
+php artisan route:clear
+php artisan route:list          # ver las rutas aprendices.*
+php artisan serve               # http://127.0.0.1:8000/aprendices
+```
+Al enviar el formulario se redirige a `/aprendices` con el mensaje **"Aprendiz recibido (simulado)"**.
 
 ---
 
