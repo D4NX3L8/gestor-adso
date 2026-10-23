@@ -7,6 +7,7 @@ Aplicación web desarrollada con **PHP y Laravel** que servirá como base del pr
 - **Instructor:** Gustavo Bolaños.
 - **Semana 1:** Instalación del entorno y primer arranque.
 - **Semana 2:** Routing en `web.php` y controladores REST (módulo Aprendices).
+- **Semana 3:** Migraciones, modelos, factories, seeders y Eloquent (persistencia real).
 
 ---
 
@@ -57,6 +58,60 @@ php artisan route:list          # ver las rutas aprendices.*
 php artisan serve               # http://127.0.0.1:8000/aprendices
 ```
 Al enviar el formulario se redirige a `/aprendices` con el mensaje **"Aprendiz recibido (simulado)"**.
+
+---
+
+## Semana 3 — Migraciones, Modelos, Seeders y Eloquent (persistencia real)
+
+En esta semana el módulo `/aprendices` dejó de ser una simulación: la tabla `aprendices`
+existe en la base de datos `gestor_adso`, el modelo usa Eloquent y el formulario guarda
+registros reales. También se controlan los duplicados de `documento` y `correo`.
+
+### Archivos principales
+
+| Archivo | Descripción |
+|---|---|
+| `app/Models/Aprendiz.php` | Modelo Eloquent con `HasFactory`, `$table` y `$fillable`. |
+| `database/migrations/2026_10_23_200417_create_aprendices_table.php` | Tabla `aprendices` con `documento` y `correo` únicos, `ficha_id` nullable y `timestamps`. |
+| `database/factories/AprendizFactory.php` | Datos realistas con Faker y valores únicos. |
+| `database/seeders/AprendizSeeder.php` | Genera **25 aprendices** de prueba. |
+| `database/seeders/DatabaseSeeder.php` | Registra `AprendizSeeder` con `$this->call([])`. |
+| `app/Http/Controllers/AprendizController.php` | `index()` con `latest()->paginate(10)` y `store()` con validación `unique` + `create()`. |
+| `resources/views/aprendices/index.blade.php` | Listado real con `@forelse`, tabla y `{{ $aprendices->links() }}`. |
+| `resources/views/aprendices/create.blade.php` | Formulario con `@if ($errors->any())` y `old()` para conservar valores. |
+
+### Comandos ejecutados
+
+```bash
+sudo /opt/lampp/lampp startmysql
+cd ~/Documents/gestor-adso
+php artisan make:model Aprendiz -mfs
+php artisan migrate
+php artisan db:seed --class=AprendizSeeder
+php artisan tinker --execute="echo App\Models\Aprendiz::count();"   # 25
+php artisan serve
+```
+
+### Estructura de la tabla `aprendices`
+
+| Campo | Tipo | Restricción |
+|---|---|---|
+| `id` | BIGINT UNSIGNED | PK autoincremental |
+| `nombre` | VARCHAR(120) | NOT NULL |
+| `documento` | VARCHAR(40) | UNIQUE, NOT NULL |
+| `correo` | VARCHAR(120) | UNIQUE, NOT NULL |
+| `ficha_id` | BIGINT UNSIGNED | NULLABLE |
+| `created_at` / `updated_at` | DATETIME | NULLABLE |
+
+### Pruebas realizadas
+
+- Listado paginado con los 25 registros sembrados.
+- Creación real de un aprendiz desde `/aprendices/create` con mensaje «Aprendiz creado».
+- Verificación del registro creado en phpMyAdmin.
+- Prueba de **documento duplicado** → error de validación.
+- Prueba de **correo duplicado** → error de validación.
+
+> Resultado: **25 registros sembrados** y persistencia real comprobada en `gestor_adso.aprendices`.
 
 ---
 
@@ -194,6 +249,14 @@ php artisan serve
 Abrir en el navegador: **http://127.0.0.1:8000**
 
 > La terminal del servidor queda ocupada; para otros comandos abrir una segunda terminal dentro del proyecto.
+
+### 5.1. Datos de prueba (Semana 3)
+```bash
+php artisan migrate                                # crea la tabla aprendices
+php artisan db:seed --class=AprendizSeeder         # siembra 25 aprendices
+php artisan tinker --execute="echo App\Models\Aprendiz::count();"
+```
+Si necesitas recrear la base de datos desde cero en desarrollo: `php artisan migrate:fresh --seed` (borra todos los datos).
 
 Comandos útiles de Artisan:
 ```bash
