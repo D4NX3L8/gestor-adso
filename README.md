@@ -75,10 +75,14 @@ registros reales. También se controlan los duplicados de `documento` y `correo`
 | `database/migrations/2026_10_23_200417_create_aprendices_table.php` | Tabla `aprendices` con `documento` y `correo` únicos, `ficha_id` nullable y `timestamps`. |
 | `database/factories/AprendizFactory.php` | Datos realistas con Faker y valores únicos. |
 | `database/seeders/AprendizSeeder.php` | Genera **25 aprendices** de prueba. |
-| `database/seeders/DatabaseSeeder.php` | Registra `AprendizSeeder` con `$this->call([])`. |
-| `app/Http/Controllers/AprendizController.php` | `index()` con `latest()->paginate(10)` y `store()` con validación `unique` + `create()`. |
-| `resources/views/aprendices/index.blade.php` | Listado real con `@forelse`, tabla y `{{ $aprendices->links() }}`. |
+| `database/seeders/DatabaseSeeder.php` | Registra `AprendizSeeder` para ejecutar la carga inicial con `db:seed`. |
+| `app/Http/Controllers/AprendizController.php` | `index()` con búsqueda por nombre y paginación de 10; `store()` valida duplicados y persiste con Eloquent. |
+| `resources/views/aprendices/index.blade.php` | Listado real con búsqueda por nombre, tabla y `{{ $aprendices->links() }}` conservando el filtro. |
 | `resources/views/aprendices/create.blade.php` | Formulario con `@if ($errors->any())` y `old()` para conservar valores. |
+
+### Actividad complementaria: búsqueda por nombre
+
+El listado permite buscar por nombre completo o parcial mediante el campo «Buscar por nombre». La paginación conserva el criterio de búsqueda y el enlace «Limpiar búsqueda» vuelve al listado completo. La funcionalidad se verifica con `php artisan test`.
 
 ### Comandos ejecutados
 

@@ -7,10 +7,16 @@ use Illuminate\Http\Request;
 
 class AprendizController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $aprendices = Aprendiz::latest()->paginate(10);
-        return view('aprendices.index', compact('aprendices'));
+        $q = trim((string) $request->query('q', ''));
+        $aprendices = Aprendiz::query()
+            ->when($q !== '', fn ($query) => $query->where('nombre', 'like', "%{$q}%"))
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('aprendices.index', compact('aprendices', 'q'));
     }
 
     public function create()
