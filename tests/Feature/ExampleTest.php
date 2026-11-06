@@ -42,7 +42,7 @@ class ExampleTest extends TestCase
                     && str_contains($aprendices->url(2), 'q=Camila');
             })
             ->assertSee('Camila Rivera')
-            ->assertSee('Limpiar búsqueda')
+            ->assertSee('Limpiar')
             ->assertDontSee('Andrés Gómez');
 
         $this->get('/aprendices?q=Camila&page=2')
@@ -65,7 +65,7 @@ class ExampleTest extends TestCase
         $response = $this->post('/aprendices', $data);
 
         $response->assertRedirect('/aprendices')
-            ->assertSessionHas('ok', 'Aprendiz creado');
+            ->assertSessionHas('ok', 'Aprendiz creado correctamente.');
         $this->assertDatabaseHas('aprendices', $data);
     }
 

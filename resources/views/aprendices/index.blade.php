@@ -1,22 +1,35 @@
 @extends('layouts.app')
-@section('title','Aprendices')
+
+@section('title', 'Aprendices')
+
 @section('content')
-<h1>Aprendices</h1>
-<p><a href="{{ route('aprendices.create') }}">+ Nuevo</a></p>
+    <h1>Listado de Aprendices</h1>
 
-<form action="{{ route('aprendices.index') }}" method="GET">
-    <label for="q">Buscar por nombre</label>
-    <input id="q" name="q" value="{{ $q }}">
-    <button type="submit">Buscar</button>
-    @if($q !== '')
-        <a href="{{ route('aprendices.index') }}">Limpiar búsqueda</a>
-    @endif
-</form>
+    <div class="toolbar">
+        <a class="button" href="{{ route('aprendices.create') }}">
+            + Nuevo aprendiz
+        </a>
 
-@if($aprendices->isEmpty())
-    <p>{{ $q !== '' ? 'No se encontraron aprendices.' : 'No hay aprendices registrados.' }}</p>
-@else
-    <table border="1" cellpadding="6" cellspacing="0">
+        <form
+            class="search-form"
+            action="{{ route('aprendices.index') }}"
+            method="GET"
+        >
+            <input
+                type="text"
+                name="q"
+                value="{{ $q }}"
+                placeholder="Buscar por nombre o documento"
+            >
+            <button type="submit">Buscar</button>
+
+            @if ($q !== '')
+                <a href="{{ route('aprendices.index') }}">Limpiar</a>
+            @endif
+        </form>
+    </div>
+
+    <table>
         <thead>
             <tr>
                 <th>ID</th>
@@ -24,22 +37,47 @@
                 <th>Documento</th>
                 <th>Correo</th>
                 <th>Ficha</th>
-                <th>Creado</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($aprendices as $a)
+            @forelse ($aprendices as $aprendiz)
                 <tr>
-                    <td>{{ $a->id }}</td>
-                    <td>{{ $a->nombre }}</td>
-                    <td>{{ $a->documento }}</td>
-                    <td>{{ $a->correo }}</td>
-                    <td>{{ $a->ficha_id ?? '-' }}</td>
-                    <td>{{ $a->created_at }}</td>
+                    <td>{{ $aprendiz->id }}</td>
+                    <td>{{ $aprendiz->nombre }}</td>
+                    <td>{{ $aprendiz->documento }}</td>
+                    <td>{{ $aprendiz->correo }}</td>
+                    <td>{{ $aprendiz->ficha_id ?? 'Sin ficha' }}</td>
+                    <td class="actions">
+                        <a href="{{ route('aprendices.edit', $aprendiz) }}">
+                            Editar
+                        </a>
+
+                        <form
+                            action="{{ route('aprendices.destroy', $aprendiz) }}"
+                            method="POST"
+                            onsubmit="return confirm('¿Eliminar este aprendiz?')"
+                        >
+                            @csrf
+                            @method('DELETE')
+
+                            <button type="submit" class="danger-button">
+                                Eliminar
+                            </button>
+                        </form>
+                    </td>
                 </tr>
-            @endforeach
+            @empty
+                <tr>
+                    <td colspan="6">
+                        {{ $q !== '' ? 'No se encontraron aprendices.' : 'No hay aprendices registrados.' }}
+                    </td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
-    {{ $aprendices->links() }}
-@endif
+
+    <div class="pagination">
+        {{ $aprendices->links() }}
+    </div>
 @endsection
