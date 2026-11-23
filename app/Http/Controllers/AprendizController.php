@@ -10,6 +10,8 @@ class AprendizController extends Controller
 {
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Aprendiz::class);
+
         $q = trim((string) $request->query('q', ''));
 
         $aprendices = Aprendiz::query()
@@ -29,6 +31,8 @@ class AprendizController extends Controller
 
     public function create()
     {
+        $this->authorize('create', Aprendiz::class);
+
         $aprendiz = new Aprendiz;
 
         return view('aprendices.create', compact('aprendiz'));
@@ -36,6 +40,7 @@ class AprendizController extends Controller
 
     public function store(StoreUpdateAprendizRequest $request)
     {
+        $this->authorize('create', Aprendiz::class);
         Aprendiz::create($request->validated());
 
         return redirect()
@@ -45,6 +50,8 @@ class AprendizController extends Controller
 
     public function edit(Aprendiz $aprendiz)
     {
+        $this->authorize('update', $aprendiz);
+
         return view('aprendices.edit', compact('aprendiz'));
     }
 
@@ -52,6 +59,8 @@ class AprendizController extends Controller
         StoreUpdateAprendizRequest $request,
         Aprendiz $aprendiz
     ) {
+        $this->authorize('update', $aprendiz);
+
         $aprendiz->update($request->validated());
 
         return redirect()
@@ -61,6 +70,8 @@ class AprendizController extends Controller
 
     public function destroy(Aprendiz $aprendiz)
     {
+        $this->authorize('delete', $aprendiz);
+
         $aprendiz->delete();
 
         return redirect()

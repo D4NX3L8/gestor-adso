@@ -3,21 +3,27 @@
 @section('title', 'Editar Aprendiz')
 
 @section('content')
-    <h1>Editar Aprendiz</h1>
+    <div class="page-intro">
+        <span class="eyebrow">ACTUALIZAR REGISTRO</span>
+        <h1>Editar aprendiz</h1>
+        <p>Actualiza la información y guarda los cambios del registro.</p>
+    </div>
 
-    <form
-        action="{{ route('aprendices.update', $aprendiz) }}"
-        method="POST"
-    >
-        @method('PUT')
+    <div class="form-card">
+        <form
+            action="{{ route('aprendices.update', $aprendiz) }}"
+            method="POST"
+        >
+            @method('PUT')
 
-        @include('aprendices._form', [
-            'aprendiz' => $aprendiz,
-            'buttonText' => 'Actualizar aprendiz',
-        ])
-    </form>
+            @include('aprendices._form', [
+                'aprendiz' => $aprendiz,
+                'buttonText' => 'Guardar cambios',
+            ])
+        </form>
+    </div>
 
-    <p>
-        <a href="{{ route('aprendices.index') }}">Volver al listado</a>
-    </p>
+    <a class="back-link" href="{{ route('aprendices.index') }}">
+        <span aria-hidden="true">←</span> Volver al listado
+    </a>
 @endsection

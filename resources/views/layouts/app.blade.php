@@ -3,130 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Gestor ADSO')</title>
-
-    <style>
-        body {
-            max-width: 1100px;
-            margin: 24px auto;
-            padding: 0 16px;
-            font-family: Arial, sans-serif;
-            color: #222;
-        }
-
-        nav {
-            margin-bottom: 24px;
-        }
-
-        nav a,
-        a {
-            color: #006b3c;
-        }
-
-        .flash {
-            background: #e8f7ee;
-            border: 1px solid #9bd3ae;
-            padding: 10px;
-            margin: 12px 0;
-        }
-
-        .danger {
-            background: #fff0f0;
-            border: 1px solid #e0aaaa;
-            padding: 10px;
-            margin: 12px 0;
-        }
-
-        .field {
-            margin-bottom: 14px;
-        }
-
-        .field label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
-
-        input {
-            padding: 7px;
-            min-width: 280px;
-        }
-
-        button,
-        .button {
-            display: inline-block;
-            padding: 7px 12px;
-            cursor: pointer;
-        }
-
-        .toolbar {
-            display: flex;
-            gap: 16px;
-            align-items: center;
-            justify-content: space-between;
-            margin: 16px 0;
-            flex-wrap: wrap;
-        }
-
-        .search-form {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 12px;
-        }
-
-        th,
-        td {
-            border: 1px solid #d7d7d7;
-            padding: 8px;
-            text-align: left;
-        }
-
-        th {
-            background: #f3f3f3;
-        }
-
-        .actions {
-            white-space: nowrap;
-        }
-
-        .actions form {
-            display: inline;
-            margin-left: 8px;
-        }
-
-        .danger-button {
-            color: #8b0000;
-        }
-
-        .pagination {
-            margin-top: 18px;
-        }
-
-        .pagination svg,
-        nav[role="navigation"] svg {
-            width: 18px;
-            height: 18px;
-        }
-    </style>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
-    <nav>
-        <a href="{{ route('aprendices.index') }}">Aprendices</a>
-    </nav>
+<body class="app-body">
+    <header class="site-header">
+        <div class="site-header__inner">
+            <a class="brand" href="{{ route('aprendices.index') }}">
+                <span class="brand__mark" aria-hidden="true">A</span>
+                <span class="brand__text">
+                    <strong>Gestor ADSO</strong>
+                    <small>Formación que avanza</small>
+                </span>
+            </a>
 
-    @if (session('ok'))
-        <div class="flash">
-            {{ session('ok') }}
+            <nav class="site-nav" aria-label="Navegación principal">
+                <a class="site-nav__link {{ request()->routeIs('aprendices.*') ? 'is-active' : '' }}"
+                    href="{{ route('aprendices.index') }}">Aprendices</a>
+
+                @auth
+                    <span class="user-greeting">
+                        <span class="user-greeting__dot" aria-hidden="true"></span>
+                        Hola, {{ auth()->user()->name }}
+                    </span>
+
+                    @if (Route::has('profile.edit'))
+                        <a class="site-nav__link {{ request()->routeIs('profile.*') ? 'is-active' : '' }}"
+                            href="{{ route('profile.edit') }}">Mi perfil</a>
+                    @endif
+
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button class="button button--quiet" type="submit">Cerrar sesión</button>
+                    </form>
+                @endauth
+
+                @guest
+                    <a class="site-nav__link" href="{{ route('login') }}">Iniciar sesión</a>
+                    <a class="button button--small" href="{{ route('register') }}">Crear cuenta</a>
+                @endguest
+            </nav>
         </div>
-    @endif
+    </header>
 
-    @yield('content')
+    <main class="page-shell">
+        @if (session('ok'))
+            <div class="notice notice--success" role="status">
+                <span class="notice__icon" aria-hidden="true">✓</span>
+                {{ session('ok') }}
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="notice notice--error" role="alert">{{ session('error') }}</div>
+        @endif
+
+        @isset($header)
+            <div class="page-slot-header">{{ $header }}</div>
+        @endisset
+
+        @isset($slot)
+            {{ $slot }}
+        @else
+            @yield('content')
+        @endisset
+    </main>
+
+    <footer class="site-footer">
+        <span>Gestor ADSO</span>
+        <span>Aprender · Crear · Avanzar</span>
+    </footer>
 </body>
 </html>

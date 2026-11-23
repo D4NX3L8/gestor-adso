@@ -3,12 +3,28 @@
 namespace Tests\Feature;
 
 use App\Models\Aprendiz;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class AprendizCrudTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAs(User::factory()->create(['role' => 'admin']));
+    }
+
+    public function test_guest_is_redirected_to_login_when_opening_aprendices(): void
+    {
+        auth()->logout();
+
+        $this->get(route('aprendices.index'))
+            ->assertRedirect(route('login'));
+    }
 
     public function test_aprendiz_can_be_created(): void
     {
@@ -170,5 +186,39 @@ class AprendizCrudTest extends TestCase
 
         $this->get(route('aprendices.index'))
             ->assertViewHas('aprendices', fn ($aprendices) => $aprendices->total() === 12);
+    }
+
+    public function test_instructor_can_create_and_edit_but_cannot_delete(): void
+    {
+        $instructor = User::factory()->create(['role' => 'instructor']);
+        $aprendiz = Aprendiz::factory()->create();
+
+        $this->actingAs($instructor);
+
+        $this->get(route('aprendices.create'))->assertOk();
+        $this->get(route('aprendices.edit', $aprendiz))->assertOk();
+        $this->delete(route('aprendices.destroy', $aprendiz))->assertForbidden();
+    }
+
+    public function test_aprendiz_can_list_but_cannot_create(): void
+    {
+        $aprendizUser = User::factory()->create(['role' => 'aprendiz']);
+
+        $this->actingAs($aprendizUser);
+
+        $this->get(route('aprendices.index'))->assertOk();
+        $this->get(route('aprendices.create'))->assertForbidden();
+    }
+
+    public function test_admin_can_perform_all_aprendiz_actions(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $aprendiz = Aprendiz::factory()->create();
+
+        $this->actingAs($admin);
+
+        $this->get(route('aprendices.create'))->assertOk();
+        $this->get(route('aprendices.edit', $aprendiz))->assertOk();
+        $this->delete(route('aprendices.destroy', $aprendiz))->assertRedirect(route('aprendices.index'));
     }
 }

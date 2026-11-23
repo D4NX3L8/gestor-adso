@@ -3,12 +3,20 @@
 namespace Tests\Feature;
 
 use App\Models\Aprendiz;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAs(User::factory()->create());
+    }
 
     public function test_home_redirects_to_the_apprentice_list(): void
     {
