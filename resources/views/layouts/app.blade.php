@@ -23,6 +23,11 @@
                     href="{{ route('aprendices.index') }}">Aprendices</a>
 
                 @auth
+                    @can('manage-users')
+                        <a class="site-nav__link {{ request()->routeIs('admin.users.*') ? 'is-active' : '' }}"
+                            href="{{ route('admin.users.index') }}">Usuarios</a>
+                    @endcan
+
                     <span class="user-greeting">
                         <span class="user-greeting__dot" aria-hidden="true"></span>
                         Hola, {{ auth()->user()->name }}

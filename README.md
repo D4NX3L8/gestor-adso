@@ -339,3 +339,52 @@ Cada captura incluye: comando ejecutado, para qué sirve, resultado obtenido y p
 ---
 
 **Autor:** D4NX3L8 — Programa ADSO · SENA Regional Antioquia · CTMA
+
+---
+
+## Semana 7 — Administración de usuarios y control por roles
+
+El modelo `User` maneja los roles `admin`, `instructor` y `aprendiz`, con los helpers
+`isAdmin()`, `isInstructor()` e `isAprendiz()`. El Gate `manage-users` se define en
+`AuthServiceProvider`; el grupo `admin.*` exige autenticación y ese Gate, por lo que un
+instructor o aprendiz que escriba directamente una URL `/admin/users` recibe HTTP 403.
+El enlace **Usuarios** se muestra únicamente cuando el usuario autenticado supera el
+mismo Gate.
+
+El CRUD de `/admin/users` incluye búsqueda por nombre/correo, filtro por rol,
+paginación, creación, edición de nombre/correo/rol y contraseña opcional, además de
+eliminación. La cuenta actualmente autenticada no tiene botón de eliminación y el
+controlador rechaza también una petición DELETE directa, vuelve al listado y muestra:
+«No puedes eliminar tu propia cuenta de administrador activa.»
+
+### Administrador inicial
+
+Para evitar cuentas de prueba compartidas, el seeder crea solo el administrador y lee
+sus datos privados de variables locales; exige una contraseña de al menos ocho
+caracteres. No se imprimen ni se incluyen contraseñas en el repositorio o en la
+entrega. Configura en tu `.env` valores propios para
+`ADMIN_NAME`, `ADMIN_EMAIL` y `ADMIN_PASSWORD` antes de sembrar. No compartas esos
+datos. Luego ejecuta:
+
+```bash
+php artisan config:clear
+php artisan migrate
+php artisan db:seed --class=UserSeeder
+php artisan optimize:clear
+```
+
+### Contraseña de perfil y pruebas
+
+Desde **Mi perfil**, Breeze valida la contraseña actual, exige que la nueva tenga al
+menos ocho caracteres y exige confirmación. La suite automatizada cubre el CRUD,
+roles, acceso directo de instructor/aprendiz, protección contra autoeliminación,
+seeder y validaciones de contraseña:
+
+```bash
+php artisan test
+```
+
+Para la verificación manual de entrega, inicia sesión con cuentas de prueba creadas
+individualmente, documenta qué acciones permite cada rol y toma capturas propias sin
+mostrar contraseñas. El documento de entrega debe explicar cada captura y cada
+fragmento de código.

@@ -48,4 +48,27 @@ class PasswordUpdateTest extends TestCase
             ->assertSessionHasErrorsIn('updatePassword', 'current_password')
             ->assertRedirect('/profile');
     }
+
+    public function test_new_password_must_have_at_least_eight_characters_and_be_confirmed(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->from('/profile')
+            ->put('/password', [
+                'current_password' => 'password',
+                'password' => 'short',
+                'password_confirmation' => 'short',
+            ])
+            ->assertRedirect('/profile')
+            ->assertSessionHasErrorsIn('updatePassword', 'password');
+
+        $this->put('/password', [
+            'current_password' => 'password',
+            'password' => 'valid-password',
+            'password_confirmation' => 'different-password',
+        ])
+            ->assertRedirect('/profile')
+            ->assertSessionHasErrorsIn('updatePassword', 'password');
+    }
 }

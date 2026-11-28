@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Models\Aprendiz;
+use App\Models\User;
 use App\Policies\AprendizPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Gate;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -14,6 +16,6 @@ class AuthServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        //
+        Gate::define('manage-users', fn (User $user): bool => $user->isAdmin());
     }
 }
